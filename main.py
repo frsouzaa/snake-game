@@ -31,6 +31,7 @@ class Curva(pygame.sprite.Sprite):
         self.body.fill((254, 0, 0))
         self.rect = self.body.get_rect()
         self.rect.move_ip(10, 10)
+        self.colliding = False
 
 
 pygame.init()
@@ -45,6 +46,7 @@ body[1].rect.update(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 30, 30, 30)
 body[2].rect.update(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 60, 30, 30)
 
 body[0].body.fill((60, 254, 60))
+body[2].body.fill((254, 254, 60))
 
 running = True
 
@@ -78,53 +80,42 @@ while running:
         print("down")
         lastKey[0] = 2
         direction = 2
+        curva.append(Curva())
+        curva[-1].rect.update(body[0].rect[0], body[0].rect[1], 30, 30)
+        screen.blit(curva[-1].body, curva[-1].rect)
     if pressedKeys[K_LEFT] and lastKey[0] != 4 and lastKey[0] != 3:
         # x = body.rect[1] - ((body.rect[1])//30)*30
         print("left")
         lastKey[0] = 3
         direction = 3
+        curva.append(Curva())
+        curva[-1].rect.update(body[0].rect[0], body[0].rect[1], 30, 30)
+        screen.blit(curva[-1].body, curva[-1].rect)
     if pressedKeys[K_RIGHT] and lastKey[0] != 3 and lastKey[0] != 4:
         # x = body.rect[1] - ((body.rect[1])//30)*30
         print("right")
         lastKey[0] = 4
         direction = 4
+        curva.append(Curva())
+        curva[-1].rect.update(body[0].rect[0], body[0].rect[1], 30, 30)
+        screen.blit(curva[-1].body, curva[-1].rect)
 
     if direction == 1:
         body[0].rect.move_ip(0, -pixels)
         body[1].rect.update(body[0].rect[0], body[0].rect[1] + 30, 30, 30)
         body[2].rect.update(body[0].rect[0], body[0].rect[1] + 60, 30, 30)
-        #if x > 0:
-        #    body.rect.move_ip(0, -x)
-        #    x = 0
-        #else:
-        #    body.rect.move_ip(0, -pixels)
     elif direction == 2:
         body[0].rect.move_ip(0, pixels)
         body[1].rect.update(body[0].rect[0], body[0].rect[1] - 30, 30, 30)
         body[2].rect.update(body[0].rect[0], body[0].rect[1] - 60, 30, 30)
-        #if x > 0:
-        #    body.rect.move_ip(0, x)
-        #    x = 0
-        #else:
-        #    body.rect.move_ip(0, pixels)
     elif direction == 3:
         body[0].rect.move_ip(-pixels, 0)
         body[1].rect.update(body[0].rect[0] + 30, body[0].rect[1], 30, 30)
         body[2].rect.update(body[0].rect[0] + 60, body[0].rect[1], 30, 30)
-        #if x > 0:
-        #    body.rect.move_ip(-x, 0)
-        #    x = 0
-        #else:
-        #    body.rect.move_ip(-pixels, 0)
     elif direction == 4:
         body[0].rect.move_ip(pixels, 0)
         body[1].rect.update(body[0].rect[0] - 30, body[0].rect[1], 30, 30)
         body[2].rect.update(body[0].rect[0] - 60, body[0].rect[1], 30, 30)
-        #if x > 0:
-        #    body.rect.move_ip(x, 0)
-        #    x = 0
-        #else:
-        #    body.rect.move_ip(pixels, 0)
 
     if body[0].rect[0] >= 781 or body[0].rect[0] <= 1 or body[0].rect[1] >= 631 or body[0].rect[1] <= 1:
         running = False
@@ -135,18 +126,28 @@ while running:
         screen.blit(body[i].body, body[i].rect)
 
     if len(curva) != 0:
-        notColliding = True
+        for i in range(len(curva)):
+            curva[i].colliding = False
+
         i = 0
         while i < len(body):
-            if pygame.Rect.colliderect(body[i].rect, curva[-1].rect):
-                notColliding = False
-                break
+            j = 0
+            while j < len(curva):
+                if pygame.Rect.colliderect(body[i].rect, curva[j].rect):
+                    curva[j].colliding = True
+                    break
+                j = j + 1
             i = i + 1
 
-        if notColliding:
-            curva[-1].rect.update(-30, -30, 30, 30)
+        i = 0
+        while i < len(curva):
+            if not curva[i].colliding:
+                del curva[i]
+            else:
+                i = i + 1
 
-        screen.blit(curva[-1].body, curva[-1].rect)
+        for i in range(len(curva)):
+            screen.blit(curva[i].body, curva[i].rect)
 
     pygame.display.flip()
 
