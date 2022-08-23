@@ -20,7 +20,7 @@ class Body(pygame.sprite.Sprite):
     def __init__(self):
         super(Body, self).__init__()
         self.body = pygame.Surface((30, 30))
-        self.body.fill((80, 242, 112))
+        self.body.fill((random.randint(1, 254), random.randint(1, 254), random.randint(1, 254)))
         self.rect = self.body.get_rect()
         self.direction = 0
 
@@ -31,7 +31,15 @@ class Curva(pygame.sprite.Sprite):
         self.body = pygame.Surface((30, 30))
         self.body.fill((80, 242, 112))
         self.rect = self.body.get_rect()
-        self.rect.move_ip(10, 10)
+        self.colliding = False
+
+
+class Point(pygame.sprite.Sprite):
+    def __init__(self):
+        super(Point, self).__init__()
+        self.body = pygame.Surface((30, 30))
+        self.body.fill((254, 90, 90))
+        self.rect = self.body.get_rect()
         self.colliding = False
 
 
@@ -56,16 +64,29 @@ def move():
             body[k].direction = 4
 
 
+def changedirection(d):
+    global body
+    global curva
+    global direction
+    body[0].direction = d
+    direction = d
+    curva.append(Curva())
+    curva[-1].rect.update(body[0].rect[0], body[0].rect[1], 30, 30)
+    screen.blit(curva[-1].body, curva[-1].rect)
+
+
 pygame.init()
 
 screen = pygame.display.set_mode([SCREEN_WIDTH, SCREEN_HEIGHT])
 
 body = [Body(), Body(), Body()]
 curva = []
+point = Point()
 
 body[0].rect.update(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 30, 30)
 body[1].rect.update(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 30, 30, 30)
 body[2].rect.update(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 60, 30, 30)
+point.rect.update(random.randint(1, 782), random.randint(1, 633), 30, 30)
 
 running = True
 
@@ -97,48 +118,14 @@ while running:
     if frame == 12:
         pressedKeys = pygame.key.get_pressed()
         if lastKey[0] == 1 and body[0].direction != 1 and body[0].direction != 2:
-            print("up")
-            body[0].direction = 1
-            direction = 1
-            curva.append(Curva())
-            curva[-1].rect.update(body[0].rect[0], body[0].rect[1], 30, 30)
-            screen.blit(curva[-1].body, curva[-1].rect)
+            changedirection(1)
         if lastKey[0] == 2 and body[0].direction != 2 and body[0].direction != 1:
-            print("down")
-            body[0].direction = 2
-            direction = 2
-            curva.append(Curva())
-            curva[-1].rect.update(body[0].rect[0], body[0].rect[1], 30, 30)
-            screen.blit(curva[-1].body, curva[-1].rect)
+            changedirection(2)
         if lastKey[0] == 3 and body[0].direction != 3 and body[0].direction != 4:
-            print("left")
-            body[0].direction = 3
-            direction = 3
-            curva.append(Curva())
-            curva[-1].rect.update(body[0].rect[0], body[0].rect[1], 30, 30)
-            screen.blit(curva[-1].body, curva[-1].rect)
+            changedirection(3)
         if lastKey[0] == 4 and body[0].direction != 4 and body[0].direction != 3:
-            print("right")
-            body[0].direction = 4
-            direction = 4
-            curva.append(Curva())
-            curva[-1].rect.update(body[0].rect[0], body[0].rect[1], 30, 30)
-            screen.blit(curva[-1].body, curva[-1].rect)
+            changedirection(4)
         frame = 0
-        if random.randint(1, 10) == 1:
-            body.append(Body())
-            if body[-2].direction == 1:
-                body[-1].rect.update(body[len(body) - 2].rect[0], body[len(body) - 2].rect[1] + 30, 30, 30)
-                body[-1].direction = 1
-            elif body[-2].direction == 2:
-                body[-1].rect.update(body[len(body) - 2].rect[0], body[len(body) - 2].rect[1] - 30, 30, 30)
-                body[-1].direction = 2
-            elif body[-2].direction == 3:
-                body[-1].rect.update(body[len(body) - 2].rect[0] + 30, body[len(body) - 2].rect[1], 30, 30)
-                body[-1].direction = 3
-            else:
-                body[-1].rect.update(body[len(body) - 2].rect[0] - 30, body[len(body) - 2].rect[1], 30, 30)
-                body[-1].direction = 4
 
     frame = frame + 1
 
@@ -154,6 +141,32 @@ while running:
     elif direction == 4:
         body[0].rect.move_ip(pixels, 0)
         move()
+
+    if pygame.Rect.colliderect(point.rect, body[0].rect):
+        point.rect.update(random.randint(1, 782), random.randint(1, 633), 30, 30)
+        point.colliding = False
+        i = 0
+        while i < len(body) and not point.colliding:
+            if pygame.Rect.colliderect(point.rect, body[i].rect):
+                point.colliding = True
+                point.rect.update(random.randint(1, 782), random.randint(1, 633), 30, 30)
+            else:
+                point.colliding = False
+            i = i + 1
+
+        body.append(Body())
+        if body[-2].direction == 1:
+            body[-1].rect.update(body[len(body) - 2].rect[0], body[len(body) - 2].rect[1] + 30, 30, 30)
+            body[-1].direction = 1
+        elif body[-2].direction == 2:
+            body[-1].rect.update(body[len(body) - 2].rect[0], body[len(body) - 2].rect[1] - 30, 30, 30)
+            body[-1].direction = 2
+        elif body[-2].direction == 3:
+            body[-1].rect.update(body[len(body) - 2].rect[0] + 30, body[len(body) - 2].rect[1], 30, 30)
+            body[-1].direction = 3
+        else:
+            body[-1].rect.update(body[len(body) - 2].rect[0] - 30, body[len(body) - 2].rect[1], 30, 30)
+            body[-1].direction = 4
 
     if body[0].rect[0] >= 781 or body[0].rect[0] <= 1 or body[0].rect[1] >= 631 or body[0].rect[1] <= 1:
         running = False
@@ -187,9 +200,11 @@ while running:
         for i in range(len(curva)):
             screen.blit(curva[i].body, curva[i].rect)
 
+    screen.blit(point.body,  point.rect)
+
     pygame.display.flip()
 
-    clock.tick(60)
+    clock.tick(70)
 
 pygame.quit()
 
