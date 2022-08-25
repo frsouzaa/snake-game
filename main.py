@@ -11,20 +11,24 @@ from pygame.locals import (
     QUIT,
 )
 
-SCREEN_WIDTH = 827  # 828 no total, a tela começa no 0
+SCREEN_WIDTH = 828  # 828 no total, a tela começa no 0
 SCREEN_HEIGHT = 647  # 648 no total, a tela começa com 0
 pixels = 3
 
 # Site para criar as spites
 # https://www.pixilart.com/draw?gclid=CjwKCAjwmJeYBhAwEiwAXlg0AbIKMpZRreBF0OZQnGkZP6KjKjkZgWNPZbxQKKomkeUSt_EGgjbVpxoC6o4QAvD_BwE#
-if random.randint(0, 2) == 0:
-    snakeColor = (255, 211, 68)  # amarelo
-    head = pygame.image.load(r'imgs/yellow.png')
-else:
-    snakeColor = (57, 110, 154)  # azul
-    head = pygame.image.load(r'imgs/blue.png')
 
-background = pygame.image.load(r'imgs/fundo.png')
+color = random.randint(0, 2)
+
+if color == 0:
+    snakeColor = (255, 211, 68)  # amarelo
+elif color == 1:
+    snakeColor = (57, 110, 154)  # azul
+elif color == 2:
+    snakeColor = (242, 58, 221)  # rosa
+
+background = pygame.image.load(r'imgs/background.png')
+
 
 class Body(pygame.sprite.Sprite):
     def __init__(self):
@@ -48,7 +52,7 @@ class Point(pygame.sprite.Sprite):
     def __init__(self):
         super(Point, self).__init__()
         self.body = pygame.Surface((30, 30))
-        self.body.fill((254, 90, 90))
+        self.body.fill((237, 12, 12))
         self.rect = self.body.get_rect()
         self.colliding = False
 
@@ -78,23 +82,6 @@ def changedirection(d):
     global body
     global curva
     global direction
-    global head
-    if body[0].direction == 1 and d == 3:
-        head = pygame.transform.rotate(head, 90)
-    elif body[0].direction == 1 and d == 4:
-        head = pygame.transform.rotate(head, -90)
-    elif body[0].direction == 2 and d == 3:
-        head = pygame.transform.rotate(head, -90)
-    elif body[0].direction == 2 and d == 4:
-        head = pygame.transform.rotate(head, 90)
-    elif body[0].direction == 3 and d == 1:
-        head = pygame.transform.rotate(head, -90)
-    elif body[0].direction == 3 and d == 2:
-        head = pygame.transform.rotate(head, 90)
-    elif body[0].direction == 4 and d == 1:
-        head = pygame.transform.rotate(head, 90)
-    elif body[0].direction == 4 and d == 2:
-        head = pygame.transform.rotate(head, -90)
 
     body[0].direction = d
     direction = d
@@ -111,10 +98,10 @@ body = [Body(), Body(), Body()]
 curva = []
 point = Point()
 
-body[0].rect.update(396+3, SCREEN_HEIGHT / 2, 30, 30)
-body[1].rect.update(396+3, SCREEN_HEIGHT / 2 + 30, 30, 30)
-body[2].rect.update(396+3, SCREEN_HEIGHT / 2 + 60, 30, 30)
-point.rect.update(random.randint(1, 782), random.randint(1, 633), 30, 30)
+body[0].rect.update(396+3, 399, 30, 30)
+body[1].rect.update(396+3, 399+30, 30, 30)
+body[2].rect.update(396+3, 399+60, 30, 30)
+point.rect.update(396+3, 216+3, 30, 30)
 
 running = True
 
@@ -175,17 +162,16 @@ while running:
             running = False
 
     if pygame.Rect.colliderect(point.rect, body[0].rect):
-        point.rect.update(random.randint(0, 24)*36+3, random.randint(0, 19)*36+3, 30, 30)
-        point.colliding = False
+        point.rect.update(random.randint(0, 22)*36+3, random.randint(0, 17)*36+3, 30, 30)
         i = 0
-        while i < len(body) and not point.colliding:
+        while i < len(body):
+            print(point.rect)
             if pygame.Rect.colliderect(point.rect, body[i].rect):
-                point.colliding = True
-                point.rect.update(random.randint(1, 782), random.randint(1, 633), 30, 30)
+                point.rect.update(random.randint(0, 23)*36+3, random.randint(0, 18)*36+3, 30, 30)
+                i = 0
             else:
-                point.colliding = False
-            i = i + 1
-
+                i = i + 1
+        print("\n")
         body.append(Body())
         if body[-2].direction == 1:
             body[-1].rect.update(body[len(body) - 2].rect[0], body[len(body) - 2].rect[1] + 30, 30, 30)
@@ -200,17 +186,14 @@ while running:
             body[-1].rect.update(body[len(body) - 2].rect[0] - 30, body[len(body) - 2].rect[1], 30, 30)
             body[-1].direction = 4
 
-    if body[0].rect[0] >= 798 or body[0].rect[0] <= 1 or body[0].rect[1] >= 648 or body[0].rect[1] <= 1:
+    if body[0].rect[0] >= 797 or body[0].rect[0] <= 0 or body[0].rect[1] >= 647 or body[0].rect[1] <= 0:
         running = False
 
-    # screen.fill((1, 56, 12))
+    screen.fill((1, 56, 12))
+    screen.blit(background, (0, 0))
+    screen.blit(background, (648, 0))
 
-    for i in range(0, 24):
-        screen.blit(background, (36*i, 0))
-        background = pygame.transform.rotate(background, 180)
-
-    screen.blit(head, body[0].rect)
-    for i in range(1, len(body)):
+    for i in range(0, len(body)):
         screen.blit(body[0].body, body[i].rect)
 
     if len(curva) != 0:
