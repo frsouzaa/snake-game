@@ -17,10 +17,10 @@ LEFT = 3
 RIGHT = 4
 
 SCREEN_WIDTH = 828  # 828 no total, a tela começa no 0
-SCREEN_HEIGHT = 647  # 648 no total, a tela começa com 0
+SCREEN_HEIGHT = 648  # 648 no total, a tela começa com 0
 pixels = 3
 
-color = random.randint(0, 2)
+color = random.randint(0, 4)
 
 if color == 0:
     snakeColor = (255, 211, 68)  # amarelo
@@ -28,6 +28,10 @@ elif color == 1:
     snakeColor = (57, 110, 154)  # azul
 elif color == 2:
     snakeColor = (242, 58, 221)  # rosa
+elif color == 3:
+    snakeColor = (7, 196, 0)  # verde
+elif color == 4:
+    snakeColor = (204, 51, 0)  # vermelho
 
 background = pygame.image.load(r'imgs/background.png')
 
@@ -79,19 +83,33 @@ def move():
     global body
     global pixels
     for k in range(1, len(body)):
-        if (body[k].rect[1] > body[k - 1].rect[1] and body[k].rect[0] == body[k - 1].rect[0]) or \
-                (body[k].rect[1] > body[k - 1].rect[1] and body[k - 1].direction != 1):
+        if ((body[k].rect[1] > body[k - 1].rect[1] and body[k].rect[0] == body[k - 1].rect[0]) or
+            (body[k].rect[1] > body[k - 1].rect[1] and body[k - 1].direction != 1)) and body[k - 1].direction != DOWN:
             body[k].rect.move_ip(0, -pixels)
             body[k].direction = UP
-        elif (body[k].rect[1] < body[k - 1].rect[1] and body[k].rect[0] == body[k - 1].rect[0]) or \
-                (body[k].rect[1] < body[k - 1].rect[1] and body[k - 1].direction != 2):
+        elif ((body[k].rect[1] < body[k - 1].rect[1] and body[k].rect[0] == body[k - 1].rect[0]) or
+              (body[k].rect[1] < body[k - 1].rect[1] and body[k - 1].direction != 2)) and body[k - 1].direction != UP:
             body[k].rect.move_ip(0, pixels)
             body[k].direction = DOWN
-        elif (body[k].rect[0] > body[k - 1].rect[0] and body[k].rect[1] == body[k - 1].rect[1]) or \
-                (body[k].rect[0] > body[k - 1].rect[0] and body[k - 1].direction != 3):
+        elif ((body[k].rect[0] > body[k - 1].rect[0] and body[k].rect[1] == body[k - 1].rect[1]) or
+              (body[k].rect[0] > body[k - 1].rect[0] and body[k - 1].direction != 3)) and body[
+            k - 1].direction != RIGHT:
             body[k].rect.move_ip(-pixels, 0)
             body[k].direction = LEFT
-        else:
+        elif ((body[k].rect[0] < body[k - 1].rect[0] and body[k].rect[1] == body[k - 1].rect[1]) or
+              (body[k].rect[0] < body[k - 1].rect[0] and body[k - 1].direction != 3)) and body[k - 1].direction != LEFT:
+            body[k].rect.move_ip(pixels, 0)
+            body[k].direction = RIGHT
+        elif body[k - 1].direction == UP:
+            body[k].rect.move_ip(0, -pixels)
+            body[k].direction = UP
+        elif body[k - 1].direction == DOWN:
+            body[k].rect.move_ip(0, pixels)
+            body[k].direction = DOWN
+        elif body[k - 1].direction == LEFT:
+            body[k].rect.move_ip(-pixels, 0)
+            body[k].direction = LEFT
+        elif body[k - 1].direction == RIGHT:
             body[k].rect.move_ip(pixels, 0)
             body[k].direction = RIGHT
 
@@ -110,10 +128,10 @@ def changedirection(d):
 
 def movesquare(localx, localy):
     if (localx + localy) % 2 == 0:
-        darkSquare.rect.update(localx*36, localy*36, 36, 36)
+        darkSquare.rect.update(localx * 36, localy * 36, 36, 36)
         screen.blit(darkSquare.body, darkSquare.rect)
     else:
-        lightSquare.rect.update(localx*36, localy*36, 36, 36)
+        lightSquare.rect.update(localx * 36, localy * 36, 36, 36)
         screen.blit(lightSquare.body, lightSquare.rect)
 
 
@@ -128,10 +146,10 @@ point = Point()
 lightSquare = LightSquare()
 darkSquare = DarkSquare()
 
-body[0].rect.update(396+3, 399, 30, 30)
-body[1].rect.update(396+3, 399+30, 30, 30)
-body[2].rect.update(396+3, 399+60, 30, 30)
-point.rect.update(396+3, 216+3, 30, 30)
+body[0].rect.update(396 + 3, 399, 30, 30)
+body[1].rect.update(396 + 3, 399 + 30, 30, 30)
+body[2].rect.update(396 + 3, 399 + 60, 30, 30)
+point.rect.update(396 + 3, 216 + 3, 30, 30)
 
 running = True
 
@@ -142,9 +160,10 @@ direction = None
 pressedKey = None
 frame = 0
 
+screen.fill((254, 0, 0))
 screen.blit(background, (0, 0))
 screen.blit(background, (648, 0))
-screen.blit(point.body,  point.rect)
+screen.blit(point.body, point.rect)
 
 while running:
     # Bloco responsável por fechar o jogo, caso seja precionado esc ou clicado no X ------------------------------------
@@ -229,11 +248,11 @@ while running:
         movesquare(x, y)
         screen.blit(body[0].body, body[0].rect)
 
-        point.rect.update(random.randint(0, 22)*36+3, random.randint(0, 17)*36+3, 30, 30)
+        point.rect.update(random.randint(0, 22) * 36 + 3, random.randint(0, 17) * 36 + 3, 30, 30)
         i = 0
         while i < len(body):
             if pygame.Rect.colliderect(point.rect, body[i].rect):
-                point.rect.update(random.randint(0, 23)*36+3, random.randint(0, 18)*36+3, 30, 30)
+                point.rect.update(random.randint(0, 23) * 36 + 3, random.randint(0, 18) * 36 + 3, 30, 30)
                 i = 0
             else:
                 i = i + 1
@@ -254,8 +273,25 @@ while running:
     # ------------------------------------------------------------------------------------------------------------------
 
     # Bloco responsável por fechar o jogo caso a a snake saia da tela --------------------------------------------------
-    if body[0].rect[0] >= 797 or body[0].rect[0] <= 0 or body[0].rect[1] >= 647 or body[0].rect[1] <= 0:
-        running = False
+    for i in range(len(body)):
+        if body[i].rect[0] > 797 and body[i].direction == RIGHT:
+            corners.append(Corner())
+            corners[-1].rect.update(body[i].rect[0], body[i].rect[1], 30, 30)
+            body[i].rect.update(-30, body[i].rect[1], 30, 30)
+        elif body[i].rect[0] < 0 and body[i].direction == LEFT:
+            corners.append(Corner())
+            corners[-1].rect.update(body[i].rect[0], body[i].rect[1], 30, 30)
+            body[i].rect.update(861, body[i].rect[1], 30, 30)
+        elif body[i].rect[1] > 647 and body[i].direction == DOWN:
+            corners.append(Corner())
+            corners[-1].rect.update(body[i].rect[0], body[i].rect[1], 30, 30)
+            body[i].rect.update(body[i].rect[0], -35, 30, 30)
+        elif body[i].rect[1] < 0 and body[i].direction == UP:
+            corners.append(Corner())
+            corners[-1].rect.update(body[i].rect[0], body[i].rect[1], 30, 30)
+            body[i].rect.update(body[i].rect[0], 680, 30, 30)
+    # if body[0].rect[0] >= 797 or body[0].rect[0] <= 0 or body[0].rect[1] >= 647 or body[0].rect[1] <= 0:
+        # running = False
     # ------------------------------------------------------------------------------------------------------------------
 
     # Bloco responsável por rendereizar a posição nova da snake -------------------------------------------------------
@@ -293,7 +329,7 @@ while running:
     pygame.display.flip()
 
     # Max fps
-    clock.tick(70)
+    clock.tick(67 + len(body))
 
 pygame.quit()
 
