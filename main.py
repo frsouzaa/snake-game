@@ -16,6 +16,8 @@ DOWN = 2
 LEFT = 3
 RIGHT = 4
 
+# https://www.pixilart.com/draw?gclid=CjwKCAjw6raYBhB7EiwABge5Kk8WwnA_64qDUocuIDP4WTjLotw8Bo3sXkXIV30Z3YhwdhIHqHSVKxoCsHYQAvD_BwE#
+
 SCREEN_WIDTH = 828  # 828 no total, a tela começa no 0
 SCREEN_HEIGHT = 648  # 648 no total, a tela começa com 0
 pixels = 3
@@ -34,6 +36,7 @@ elif color == 4:
     snakeColor = (204, 51, 0)  # vermelho
 
 background = pygame.image.load(r'imgs/background.png')
+logo = pygame.image.load(r'imgs/logo.png')
 
 
 class Body(pygame.sprite.Sprite):
@@ -84,7 +87,8 @@ def move():
     global pixels
     for k in range(1, len(body)):
         if ((body[k].rect[1] > body[k - 1].rect[1] and body[k].rect[0] == body[k - 1].rect[0]) or
-            (body[k].rect[1] > body[k - 1].rect[1] and body[k - 1].direction != 1)) and body[k - 1].direction != DOWN:
+            (body[k].rect[1] > body[k - 1].rect[1] and body[k - 1].direction != 1)) and \
+                body[k - 1].direction != DOWN:
             body[k].rect.move_ip(0, -pixels)
             body[k].direction = UP
         elif ((body[k].rect[1] < body[k - 1].rect[1] and body[k].rect[0] == body[k - 1].rect[0]) or
@@ -92,8 +96,8 @@ def move():
             body[k].rect.move_ip(0, pixels)
             body[k].direction = DOWN
         elif ((body[k].rect[0] > body[k - 1].rect[0] and body[k].rect[1] == body[k - 1].rect[1]) or
-              (body[k].rect[0] > body[k - 1].rect[0] and body[k - 1].direction != 3)) and body[
-            k - 1].direction != RIGHT:
+              (body[k].rect[0] > body[k - 1].rect[0] and body[k - 1].direction != 3)) and \
+                body[k - 1].direction != RIGHT:
             body[k].rect.move_ip(-pixels, 0)
             body[k].direction = LEFT
         elif ((body[k].rect[0] < body[k - 1].rect[0] and body[k].rect[1] == body[k - 1].rect[1]) or
@@ -149,7 +153,7 @@ darkSquare = DarkSquare()
 body[0].rect.update(396 + 3, 399, 30, 30)
 body[1].rect.update(396 + 3, 399 + 30, 30, 30)
 body[2].rect.update(396 + 3, 399 + 60, 30, 30)
-point.rect.update(396 + 3, 216 + 3, 30, 30)
+point.rect.update(396 + 3, 108 + 3, 30, 30)
 
 running = True
 
@@ -160,12 +164,58 @@ direction = None
 pressedKey = None
 frame = 0
 
-screen.fill((254, 0, 0))
 screen.blit(background, (0, 0))
 screen.blit(background, (648, 0))
+screen.blit(logo, (281, 212))
 screen.blit(point.body, point.rect)
+# Bloco responsável por rendereizar a posição nova da snake -------------------------------------------------------
+for i in range(0, len(body)):
+    screen.blit(body[i].body, body[i].rect)
+# ------------------------------------------------------------------------------------------------------------------
+pygame.display.flip()
 
 while running:
+    for event in pygame.event.get():
+        if event.type == KEYDOWN:
+            if event.key == K_ESCAPE:
+                running = False
+                direction = None
+            elif event.key == K_UP:
+                running = False
+                direction = UP
+            elif event.key == K_DOWN:
+                running = False
+                direction = DOWN
+                body[0].rect.update(396 + 3, 399 + 60, 30, 30)
+                body[1].rect.update(396 + 3, 399 + 30, 30, 30)
+                body[2].rect.update(396 + 3, 399, 30, 30)
+                frame = 8
+            elif event.key == K_LEFT:
+                running = False
+                direction = LEFT
+            elif event.key == K_RIGHT:
+                running = False
+                direction = RIGHT
+        elif event.type == QUIT:
+            running = False
+            direction = None
+
+    # Max fps
+    clock.tick(67 + len(body))
+
+running = True
+
+screen.blit(background, (0, 0))
+screen.blit(background, (648, 0))
+screen.blit(logo, (900, 0))
+screen.blit(point.body, point.rect)
+# Bloco responsável por rendereizar a posição nova da snake -------------------------------------------------------
+for i in range(0, len(body)):
+    screen.blit(body[i].body, body[i].rect)
+# ------------------------------------------------------------------------------------------------------------------
+pygame.display.flip()
+
+while running and direction is not None:
     # Bloco responsável por fechar o jogo, caso seja precionado esc ou clicado no X ------------------------------------
     for event in pygame.event.get():
         if event.type == KEYDOWN:
@@ -272,7 +322,7 @@ while running:
         screen.blit(point.body, point.rect)
     # ------------------------------------------------------------------------------------------------------------------
 
-    # Bloco responsável por fechar o jogo caso a a snake saia da tela --------------------------------------------------
+    # Bloco responsável por telestransportar a snake caso ela saia do cenario ------------------------------------------
     for i in range(len(body)):
         if body[i].rect[0] > 797 and body[i].direction == RIGHT:
             corners.append(Corner())
@@ -289,9 +339,7 @@ while running:
         elif body[i].rect[1] < 0 and body[i].direction == UP:
             corners.append(Corner())
             corners[-1].rect.update(body[i].rect[0], body[i].rect[1], 30, 30)
-            body[i].rect.update(body[i].rect[0], 680, 30, 30)
-    # if body[0].rect[0] >= 797 or body[0].rect[0] <= 0 or body[0].rect[1] >= 647 or body[0].rect[1] <= 0:
-        # running = False
+            body[i].rect.update(body[i].rect[0], 681, 30, 30)
     # ------------------------------------------------------------------------------------------------------------------
 
     # Bloco responsável por rendereizar a posição nova da snake -------------------------------------------------------
