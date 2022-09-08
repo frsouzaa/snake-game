@@ -39,6 +39,7 @@ elif color == 4:
 background = pygame.image.load(r'imgs/background.png')
 logo = pygame.image.load(r'imgs/logo.png')
 gameOver = pygame.image.load(r'imgs/gameover.png')
+icon = pygame.image.load(r'imgs/icon.png')
 
 
 class Body(pygame.sprite.Sprite):
@@ -158,7 +159,8 @@ def set_start_screen(logox, logoy):
 pygame.init()
 
 screen = pygame.display.set_mode([SCREEN_WIDTH, SCREEN_HEIGHT])
-pygame.display.set_caption("snake")
+pygame.display.set_caption("Snake")
+pygame.display.set_icon(icon)
 
 body = [Body(), Body(), Body()]
 corners = []
@@ -240,13 +242,17 @@ while running and direction is not None:
     # Bloco responsável por mudar a direção da snake -------------------------------------------------------------------
     if frame == 12:
         pressedKeys = pygame.key.get_pressed()
-        if lastKey == UP and body[0].direction != UP and body[0].direction != DOWN:
+        if lastKey == UP and body[0].direction != UP and body[0].direction != DOWN \
+                and 0 < body[0].rect[0] < (SCREEN_WIDTH - 30):
             change_direction(UP)
-        if lastKey == DOWN and body[0].direction != DOWN and body[0].direction != UP:
+        if lastKey == DOWN and body[0].direction != DOWN and body[0].direction != UP \
+                and 0 < body[0].rect[0] < (SCREEN_WIDTH - 30):
             change_direction(DOWN)
-        if lastKey == LEFT and body[0].direction != LEFT and body[0].direction != RIGHT:
+        if lastKey == LEFT and body[0].direction != LEFT and body[0].direction != RIGHT \
+                and 0 < body[0].rect[1] < (SCREEN_HEIGHT - 30):
             change_direction(LEFT)
-        if lastKey == RIGHT and body[0].direction != RIGHT and body[0].direction != LEFT:
+        if lastKey == RIGHT and body[0].direction != RIGHT and body[0].direction != LEFT \
+                and 0 < body[0].rect[1] < (SCREEN_HEIGHT - 30):
             change_direction(RIGHT)
         frame = 0
 
@@ -302,7 +308,7 @@ while running and direction is not None:
         i = 0
         while i < len(body):
             if pygame.Rect.colliderect(point.rect, body[i].rect):
-                point.rect.update(randint(0, 23) * 36 + 3, randint(0, 18) * 36 + 3, 30, 30)
+                point.rect.update(randint(0, 23) * 36 + 3, randint(0, 17) * 36 + 3, 30, 30)
                 i = 0
             else:
                 i = i + 1
